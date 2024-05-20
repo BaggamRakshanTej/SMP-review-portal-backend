@@ -50,7 +50,10 @@ export const loginController = async (req, res) => {
     try {
         const { username, password } = req.body;
         const user = await User.findOne({ username });
-        if (!user) return res.status(400).send('You are not registered. Kindly contact SMPCs');
+        if (!user) return res.status(404).send({
+            success: false,
+            message: 'User not found'
+        });
         // const hashedPassword = await bcrypt.hash(password, 10);
         
         // console.log(hashedPassword);
@@ -58,7 +61,10 @@ export const loginController = async (req, res) => {
         
         // const isMatch = await bcrypt.compare(user.password, password);
         const isMatch = (user.password === password)
-        if (!isMatch) return res.status(400).send('Invalid credentials');
+        if (!isMatch) return res.status(400).send({
+            success: false,
+            message: 'Invalid credentials'
+        });
 
         const token = jwt.sign({ id: user._id }, process.env.SECRET);
         return res.status(200).send({
@@ -220,16 +226,7 @@ export const getUserReviewsController = async (req, res) => {
 // get all users
 export const getAllUsersController = async (req, res) => {
     try {
-        // const users = await User.findAll()
-        // const users = await User.aggregate([
-        //     {
-        //         $project: {
-        //             fullName: { $concat: ["$firstName", " ", "$lastName"] }
-        //         }
-        //     }
-        // ]);
-
-        const users = await User.find({});
+        const users = await User.find({}).populate("firstName").populate("lastName");
         console.log(users);
         if (!users) {
             return res.status(404).send({

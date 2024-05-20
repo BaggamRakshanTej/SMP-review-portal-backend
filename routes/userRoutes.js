@@ -6,7 +6,7 @@ const router = express.Router();
 import {
     registerController,
     loginController,
-    // getSingleUserController,
+    getSingleUserController,
     createReviewController,
     updateReviewController,
     getUserReviewsController,
@@ -20,9 +20,6 @@ router.post('/register', registerController);
 // Login
 router.post('/login', loginController);
 
-// get the user by id
-// router.get('/:userId', getSingleUserController)
-
 // create review
 router.post('/createReview/:userId', auth, createReviewController);
 
@@ -30,9 +27,22 @@ router.post('/createReview/:userId', auth, createReviewController);
 router.put('/updateReview/:reviewId', auth, updateReviewController);
 
 // get all users
-router.get('/getAllUsers', auth, isAdmin, getAllUsersController);
+router.get('/getAllUsers', auth, getAllUsersController);
+
+// get the user by id
+router.get('/getUser/:userId', getSingleUserController)
 
 // get reviews of a particular user
 router.get('/:userId/reviews', auth, isAdmin, getUserReviewsController);
+
+// protected routes for user
+router.get("/user-auth", auth, (req, res) => {
+  res.status(200).send({ ok: true });
+});
+
+// protected routes for admin
+router.get("/admin-auth", auth, isAdmin, (req, res) => {
+  res.status(200).send({ ok: true });
+});
 
 export default router;

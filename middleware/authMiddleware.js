@@ -2,8 +2,10 @@ import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
 
 export const auth = (req, res, next) => {
-    const token = req.header('Authorization').replace('Bearer ', '');
-    if (!token) return res.status(401).send('Access denied');
+
+  const token = req.header('Authorization').replace('Bearer ', '');
+  if (!token) { return res.status(401).send('Access denied.'); }
+  // token = token.replace('Bearer ', '');
 
     try {
         const decoded = jwt.verify(token, process.env.SECRET);
@@ -11,7 +13,8 @@ export const auth = (req, res, next) => {
         console.log('Decoded JWT:', decoded); // Debugging line to ensure decoding works
         next();
     } catch (error) {
-        res.status(400).send('Invalid token');
+      console.log(error)
+      return res.status(400).send('Invalid token');
     }
 };
 
