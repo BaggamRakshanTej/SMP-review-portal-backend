@@ -7,7 +7,7 @@ import Review from '../models/reviewModel.js';
 export const registerController = async (req, res) => {
     try {
         const { firstName, lastName, username, password, role } = req.body;
-        // const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
         const user = await User.findOne({ username });
         if (user) {
             return res.status(400).send({
@@ -19,7 +19,7 @@ export const registerController = async (req, res) => {
                 firstName,
                 lastName,
                 username,
-                password,
+                password: hashedPassword,
                 role
             })
             await newUser.save();
@@ -54,13 +54,12 @@ export const loginController = async (req, res) => {
             success: false,
             message: 'User not found'
         });
-        // const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
         
-        // console.log(hashedPassword);
-        // console.log(user.password);
+        console.log(hashedPassword);
+        console.log(user.password);
         
-        // const isMatch = await bcrypt.compare(user.password, password);
-        const isMatch = (user.password === password)
+        const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).send({
             success: false,
             message: 'Invalid credentials'
