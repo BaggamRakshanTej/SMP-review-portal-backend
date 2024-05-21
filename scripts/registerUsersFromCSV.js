@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import User from '../models/userModel.js'; // Adjust the path to your User model
 
 // Connect to your MongoDB
-mongoose.connect("mongodb+srv://admin:admin@mycluster.esu35ar.mongodb.net/SMP-review-portal-trail?retryWrites=true&w=majority&appName=MyCluster", {
+mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });

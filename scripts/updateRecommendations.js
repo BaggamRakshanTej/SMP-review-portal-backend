@@ -7,7 +7,7 @@ import User from '../models/userModel.js'; // Adjust the import path as needed
 const jsonFilePath = "D://Projects/recommendations.json";
 
 const updateRecommendations = async () => {
-  await mongoose.connect("mongodb+srv://admin:admin@mycluster.esu35ar.mongodb.net/SMP-review-portal-trail?retryWrites=true&w=majority&appName=MyCluster",
+  await mongoose.connect(process.env.MONGO_URL,
     {
       useNewUrlParser: true,
       useUnifiedTopology: true
