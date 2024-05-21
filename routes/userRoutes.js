@@ -10,7 +10,8 @@ import {
     createReviewController,
     updateReviewController,
     getUserReviewsController,
-    getAllUsersController
+    getAllUsersController,
+    getRecommendedUsersController
 } from '../controllers/userController.js';
 import { auth, isAdmin } from '../middleware/authMiddleware.js';
 
@@ -26,11 +27,14 @@ router.post('/createReview/:userId', auth, createReviewController);
 // update review
 router.put('/updateReview/:reviewId', auth, updateReviewController);
 
+// get recommended users
+router.get('/getUser/:userId/recommendations',auth, getRecommendedUsersController);
+
 // get all users
 router.get('/getAllUsers', auth, getAllUsersController);
 
 // get the user by id
-router.get('/getUser/:userId', getSingleUserController)
+router.get('/getUser/:userId', getSingleUserController);
 
 // get reviews of a particular user
 router.get('/:userId/reviews', auth, isAdmin, getUserReviewsController);

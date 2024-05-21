@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import User from '../models/userModel.js'; // Adjust the path to your User model
 
 // Connect to your MongoDB
-mongoose.connect("mongodb+srv://admin:admin@mycluster.esu35ar.mongodb.net/SMP-review-portal?retryWrites=true&w=majority&appName=MyCluster", {
+mongoose.connect("mongodb+srv://admin:admin@mycluster.esu35ar.mongodb.net/SMP-review-portal-trail?retryWrites=true&w=majority&appName=MyCluster", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
@@ -14,12 +14,16 @@ mongoose.connect("mongodb+srv://admin:admin@mycluster.esu35ar.mongodb.net/SMP-re
 const registerUser = async (user) => {
     try {
         const hashedPassword = await bcrypt.hash(user.password, 10);
+        const userCount = await User.countDocuments({});
         const newUser = new User({
-            firstName: user.firstName,
-            lastName: user.lastName,
+            index: userCount + 1,
+            // index: user.index,
+            fullname: user.fullname,
             username: user.username,
             password: hashedPassword,
-            role: user.role || 'user' // Assuming default role is 'user'
+            reviews: [],
+            role: user.role || false, // Assuming default role is false(not an admin)
+            recommendations: []
         });
         await newUser.save();
         console.log(`User ${user.username} registered successfully`);
@@ -30,7 +34,7 @@ const registerUser = async (user) => {
 
 const importUsersFromCSV = () => {
     const users = [];
-    fs.createReadStream("D:/Projects/password.csv")
+    fs.createReadStream("D://Projects/ISMP_applicants_data_final(24-25).csv")
         .pipe(csv())
         .on('data', (row) => {
             users.push(row);
