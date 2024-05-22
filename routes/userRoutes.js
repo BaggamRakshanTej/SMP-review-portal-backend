@@ -11,7 +11,8 @@ import {
     updateReviewController,
     getUserReviewsController,
     getAllUsersController,
-    getRecommendedUsersController
+    getRecommendedUsersController,
+    getUserRecommendationsByReviewerNameController
 } from '../controllers/userController.js';
 import { auth, isAdmin } from '../middleware/authMiddleware.js';
 
@@ -29,6 +30,9 @@ router.put('/updateReview/:reviewId', auth, updateReviewController);
 
 // get recommended users
 router.get('/getUser/:userId/recommendations',auth, getRecommendedUsersController);
+
+// get recommended users by using name
+router.get('/getUser/recommendations/:reviewerName', auth, getUserRecommendationsByReviewerNameController);
 
 // get all users
 router.get('/getAllUsers', auth, getAllUsersController);

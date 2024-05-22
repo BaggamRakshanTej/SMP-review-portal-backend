@@ -4,11 +4,14 @@ import User from '../models/userModel.js';
 import Review from '../models/reviewModel.js';
 
 // Register
+// register the users using fullname, username, password and role(optional)
+// returns success, message, details: {fullname, username, password, role}
 export const registerController = async (req, res) => {
     try {
         const { fullname, username, password, role } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await User.findOne({ username });
+        const userCount = await User.countDocuments({});
         if (user) {
             return res.status(400).send({
                 success: false,
@@ -16,6 +19,7 @@ export const registerController = async (req, res) => {
             })
         } else {
             const newUser = new User({
+                index: userCount + 1,
                 fullname,
                 username,
                 password: hashedPassword,
@@ -27,8 +31,7 @@ export const registerController = async (req, res) => {
                 success: true,
                 message: "User registered successfully",
                 details: {
-                    firstName: newUser.firstName,
-                    lastName: newUser.lastName,
+                    fullname: newUser.fullname,
                     username: newUser.username,
                     password: newUser.password,
                     role: newUser.role
@@ -45,18 +48,23 @@ export const registerController = async (req, res) => {
 }
 
 // Login
+// logs in the user using username, password
+// returns success, message, details: {id, username, fullname, "JWT Token"}
 export const loginController = async (req, res) => {
     try {
         const { username, password } = req.body;
+        if (!username || !password) {
+            return res.status(404).send({
+                success: false,
+                message: "Username and password are required"
+            })
+        }
         const user = await User.findOne({ username });
         if (!user) return res.status(404).send({
             success: false,
             message: 'User not found'
         });
-        const hashedPassword = await bcrypt.hash(password, 10);
-        
-        console.log(hashedPassword);
-        console.log(user.password);
+        // const hashedPassword = await bcrypt.hash(password, 10);
         
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).send({
@@ -66,43 +74,81 @@ export const loginController = async (req, res) => {
 
         const token = jwt.sign({ id: user._id }, process.env.SECRET);
         return res.status(200).send({
-            id: user._id,
-            username: user.username,
-            fullname: user.fullname,
-            "Jwt Token": token, 
+            success: true,
+            message: "Login successful",
+            details: {
+                id: user._id,
+                username: user.username,
+                fullname: user.fullname,
+                "Jwt Token": token, 
+            }
         });
     } catch (error) {
-        res.status(500).send(error.message);
+        res.status(500).send({
+            success: false,
+            message: "Login Unsuccessful",
+            error: error
+        });
     }
-}
-
-// update user controller
-export const updateUserController = async (req, res) => {
-
 }
 
 // get a single User by his id
+// params: userId
+// returns success, message, details: {id, fullname, role, reviews, submittedReviews}
 export const getSingleUserController = async (req, res) => {
-    const userId = req.params.userId;
-    const user = await User.findOne({ _id: userId });
-    // console.log(user);
-    if (!user) {
-        return res.status(404).send({
-            success: false, 
-            message: "No such user"
-        })
-    } else {
-        return res.status(200).send({
-            success: true,
-            details: {
-                id: user.id,
-                fullname: user.fullname,
-                role: user.role,
-                reviews: user.reviews
-            }
+    try {
+        const userId = req.params.userId;
+        const user = await User.findOne({ _id: userId });
+        // console.log(user);
+        if (!user) {
+            return res.status(404).send({
+                success: false, 
+                message: "No such user"
+            })
+        } else {
+            return res.status(200).send({
+                success: true,
+                message: "Details obtained successfully",
+                details: {
+                    id: user._id,
+                    fullname: user.fullname,
+                    role: user.role,
+                    reviews: user.reviews,
+                    recommendations: user.recommendations,
+                    submittedReviews: user.submittedReviews
+                }
+            })
+        }
+   
+    } catch (error) {
+        return res.status(500).send({
+            success: false,
+            message: "Error in obtaining the data of the user",
+            error: error
         })
     }
 }
+
+// Example getUserRecommendationsByReviewerNameController
+export const getUserRecommendationsByReviewerNameController = async (req, res) => {
+    try {
+        const username = req.params.username;
+        // const username = localStorage.getItem('username');
+        // Find user by reviewerName
+        const user = await User.findOne({ username: username });
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Kindly login again to continue" });
+        }
+        // Fetch recommendations based on user ID
+        const recommendations = await user.recommendations;
+        console.log(recommendations)
+        return res.status(200).json({ success: true, recommendations });
+    } catch (error) {
+        console.error("Error fetching recommendations:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
 
 // get all users
 export const getAllUsersController = async (req, res) => {
@@ -183,7 +229,8 @@ export const createReviewController = async (req, res) => {
         const user = await User.findById(req.params.userId);
         const reviewer = await User.findById(req.user.id);
         console.log('user: ' + user.username);
-        console.log('reviewer: '+ reviewer.username);
+        console.log('reviewer: ' + reviewer.username);
+
         if (!user) {
             return res.status(404).send({
                 success: false,
@@ -195,20 +242,38 @@ export const createReviewController = async (req, res) => {
                 message: "Kindly login to give the review of the applicant"
             })
         } else {
+
+            // Check if a review already exists from this reviewer for this user
+            const existingReview = await Review.findOne({
+                applicantName: `${user.fullname}`,
+                reviewerName: `${reviewer.fullname}`
+            });
+
+            console.log(existingReview);
+
+            if (existingReview) {
+                return res.status(400).send({
+                    success: false,
+                    message: "Review has already been submitted."
+                });
+            }
+
             const newReview = new Review({
-                applicantName: `${user.firstName} ${user.lastName}`,
-                reviewerName: `${reviewer.firstName} ${reviewer.lastName}`,
+                applicantName: `${user.fullname}`,
+                reviewerName: `${reviewer.fullname}`,
                 ...req.body
             });
 
             await newReview.save();
             
             user.reviews.push(newReview._id);
+            // Push the reviewer's ObjectId to the user's submittedReviews array
+            user.submittedReviews.push(reviewer._id);
             await user.save();
 
             return res.status(201).send({
                 success: true,
-                message: `Review added for ${user.firstName} ${user.lastName}`,
+                message: `Review added for ${user.fullname}`,
                 details: newReview
             })
         }
@@ -216,8 +281,8 @@ export const createReviewController = async (req, res) => {
         console.log(error);
         return res.status(500).send({
             success: false,
-            message: "Review failed to submit",
-            "error": error
+            message: `Review failed to submit`,
+            error: error
         })
     }
 }

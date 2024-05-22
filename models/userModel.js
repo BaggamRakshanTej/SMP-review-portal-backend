@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { mongo } from 'mongoose';
 import reviewModel from './reviewModel.js';
 
 const UserSchema = new mongoose.Schema({
@@ -6,9 +6,23 @@ const UserSchema = new mongoose.Schema({
     fullname: { type: String, required: true },
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
+    
+    reviews: {
+        type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
+        default: []
+    },
+
     role: { type: Boolean, default: false},
-    recommendations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+    
+    recommendations: {
+        type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+        default: []
+    },
+    
+    submittedReviews: {
+        type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+        default: []
+    }
 });
 
 const userModel = mongoose.model('User', UserSchema);
