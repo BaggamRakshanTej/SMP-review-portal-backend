@@ -130,26 +130,6 @@ export const getSingleUserController = async (req, res) => {
     }
 }
 
-// Example getUserRecommendationsByReviewerNameController
-export const getUserRecommendationsByReviewerNameController = async (req, res) => {
-    try {
-        const username = req.params.username;
-        // const username = localStorage.getItem('username');
-        // Find user by reviewerName
-        const user = await User.findOne({ username: username });
-        if (!user) {
-            return res.status(404).json({ success: false, message: "Kindly login again to continue" });
-        }
-        // Fetch recommendations based on user ID
-        const recommendations = await user.recommendations;
-        console.log(recommendations)
-        return res.status(200).json({ success: true, recommendations });
-    } catch (error) {
-        console.error("Error fetching recommendations:", error);
-        return res.status(500).json({ success: false, message: "Internal server error" });
-    }
-};
-
 
 // get all users
 export const getAllUsersController = async (req, res) => {
