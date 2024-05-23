@@ -49,7 +49,7 @@ export const registerController = async (req, res) => {
 
 // Login
 // logs in the user using username, password
-// returns success, message, details: {id, username, fullname, "JWT Token"}
+// returns success, message, details: {id, username, fullname, "JWT Token", reviewedApplicants}
 export const loginController = async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -81,6 +81,7 @@ export const loginController = async (req, res) => {
                 username: user.username,
                 fullname: user.fullname,
                 "Jwt Token": token, 
+                reviewedApplicants: user.reviewedApplicants
             }
         });
     } catch (error) {
@@ -115,7 +116,7 @@ export const getSingleUserController = async (req, res) => {
                     role: user.role,
                     reviews: user.reviews,
                     recommendations: user.recommendations,
-                    submittedReviews: user.submittedReviews
+                    reviewedApplicants: user.reviewedApplicants
                 }
             })
         }
@@ -242,40 +243,40 @@ export const createReviewController = async (req, res) => {
                 message: "Kindly login to give the review of the applicant"
             })
         } else {
+          // Check if a review already exists from this reviewer for this user
+          const existingReview = await Review.findOne({
+            applicantName: `${user.fullname}`,
+            reviewerName: `${reviewer.fullname}`,
+          });
 
-            // Check if a review already exists from this reviewer for this user
-            const existingReview = await Review.findOne({
-                applicantName: `${user.fullname}`,
-                reviewerName: `${reviewer.fullname}`
+          console.log(existingReview);
+
+          if (existingReview) {
+            return res.status(400).send({
+              success: false,
+              message: "Review has already been submitted.",
             });
+          }
 
-            console.log(existingReview);
+          const newReview = new Review({
+            applicantName: `${user.fullname}`,
+            reviewerName: `${reviewer.fullname}`,
+            ...req.body,
+          });
 
-            if (existingReview) {
-                return res.status(400).send({
-                    success: false,
-                    message: "Review has already been submitted."
-                });
-            }
+          await newReview.save();
 
-            const newReview = new Review({
-                applicantName: `${user.fullname}`,
-                reviewerName: `${reviewer.fullname}`,
-                ...req.body
-            });
+          user.reviews.push(newReview._id);
+          // Push the reviewer's ObjectId to the user's submittedReviews array
+          console.log(user._id);
+          user.reviewedApplicants.push(reviewer._id); // Update reviewedApplicants of the user being reviewed
+          await user.save();
 
-            await newReview.save();
-            
-            user.reviews.push(newReview._id);
-            // Push the reviewer's ObjectId to the user's submittedReviews array
-            user.submittedReviews.push(reviewer._id);
-            await user.save();
-
-            return res.status(201).send({
-                success: true,
-                message: `Review added for ${user.fullname}`,
-                details: newReview
-            })
+          return res.status(201).send({
+            success: true,
+            message: `Review added for ${user.fullname}`,
+            details: newReview,
+          });
         }
     } catch (error) {
         console.log(error);

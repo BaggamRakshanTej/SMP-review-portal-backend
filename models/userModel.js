@@ -19,7 +19,7 @@ const UserSchema = new mongoose.Schema({
         default: []
     },
     
-    submittedReviews: {
+    reviewedApplicants: {
         type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         default: []
     }
