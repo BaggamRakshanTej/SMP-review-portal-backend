@@ -66,8 +66,8 @@ export const loginController = async (req, res) => {
         });
         // const hashedPassword = await bcrypt.hash(password, 10);
         
-        console.log(isReviewComplete);
-        if (user.isReviewComplete) {
+        console.log(user.isReviewComplete);
+        if (user.isReviewComplete === true) {
         return res.status(403).send({
             success: false,
             message: "You have completed the review process and cannot log in.",
