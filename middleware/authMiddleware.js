@@ -41,3 +41,31 @@ export const isAdmin = async (req, res, next) => {
     });
   }
 };
+
+// This is if the applicant has submitted the reviews already
+export const restrictAccess = async (req, res, next) => {
+  const userId = req.userId; // Assuming userId is set by verifyToken middleware
+  const user = await User.findById(userId);
+
+  if (user && user.isReviewComplete) {
+    return res.status(403).send({
+      success: false,
+      message:
+        "You have declared your reviews complete and cannot access this resource",
+    });
+  }
+
+  next();
+};
+
+// Middleware to check if user has completed their review
+export const hasCompletedReview = (req, res, next) => {
+  if (req.user && req.user.isReviewComplete) {
+    return res.status(403).send({
+      success: false,
+      message: "You have already completed the review process and cannot perform this action."
+    });
+  }
+  next();
+};
+

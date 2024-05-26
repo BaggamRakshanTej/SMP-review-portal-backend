@@ -10,7 +10,11 @@ const addIndexToUsers = async () => {
     const users = await User.find({});
     for (let i = 0; i < users.length; i++) {
         // await User.updateOne({ _id: users[i]._id }, { index: i });
-        await User.updateOne({ _id: users[i]._id }, { reviews: [], submittedReviews: [] });
+        // await User.updateOne({ _id: users[i]._id }, { reviews: [], submittedReviews: [] });
+        await User.updateOne(
+          { _id: users[i]._id },
+          {  isReviewComplete: false }
+        );
         console.log(`done for ${users[i].fullname}`)
     }
     console.log('Indexes added to existing users');

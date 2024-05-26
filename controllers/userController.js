@@ -66,6 +66,14 @@ export const loginController = async (req, res) => {
         });
         // const hashedPassword = await bcrypt.hash(password, 10);
         
+        console.log(isReviewComplete);
+        if (user.isReviewComplete) {
+        return res.status(403).send({
+            success: false,
+            message: "You have completed the review process and cannot log in.",
+        });
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).send({
             success: false,
@@ -337,3 +345,62 @@ export const getUserReviewsController = async (req, res) => {
         })
     }
 }
+
+export const declareCompletionController = async (req, res) => {
+  try {
+    const { userId } = req.params;
+      const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+      }
+      console.log(user);
+
+    user.isReviewComplete = true; // Assuming you have this field in your User model
+    await user.save();
+
+    return res.status(200).send({
+      success: true,
+      message: "Review declaration submitted successfully",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      success: false,
+      message: "Failed to submit review declaration",
+      error: error,
+    });
+  }
+};
+
+export const addAdditionalReviewController = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { additionalReview } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Assuming you have an `additionalReviews` field which is an array
+    user.additionalReviews.push(additionalReview);
+    await user.save();
+
+    return res.status(200).send({
+      success: true,
+      message: "Additional review added successfully",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      success: false,
+      message: "Failed to add additional review",
+      error: error.message,
+    });
+  }
+};
+

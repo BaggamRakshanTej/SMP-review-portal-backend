@@ -22,6 +22,16 @@ const UserSchema = new mongoose.Schema({
     reviewedApplicants: {
         type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         default: []
+    },
+
+    additionalReviews: {
+        type: String, 
+        default: ""
+    },
+
+    isReviewComplete: {
+        type: Boolean,
+        default: false
     }
 });
 
