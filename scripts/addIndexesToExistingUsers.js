@@ -13,7 +13,7 @@ const addIndexToUsers = async () => {
         // await User.updateOne({ _id: users[i]._id }, { reviews: [], submittedReviews: [] });
         await User.updateOne(
           { _id: users[i]._id },
-          {  isReviewComplete: false }
+          {  isReviewComplete: false, reviewedApplicants: [], reviews: [], additionalReviews: "", isReviewComplete: false }
         );
         console.log(`done for ${users[i].fullname}`)
     }
