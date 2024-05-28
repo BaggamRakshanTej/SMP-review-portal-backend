@@ -377,7 +377,7 @@ export const declareCompletionController = async (req, res) => {
 export const addAdditionalReviewController = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { additionalReview } = req.body;
+    const { additionalReviews } = req.body;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -388,7 +388,7 @@ export const addAdditionalReviewController = async (req, res) => {
     }
 
     // Assuming you have an `additionalReviews` field which is an array
-    user.additionalReviews.push(additionalReview);
+    user.additionalReviews = additionalReviews;
     await user.save();
 
     return res.status(200).send({
@@ -399,7 +399,7 @@ export const addAdditionalReviewController = async (req, res) => {
     return res.status(500).send({
       success: false,
       message: "Failed to add additional review",
-      error: error.message,
+      error: error,
     });
   }
 };
