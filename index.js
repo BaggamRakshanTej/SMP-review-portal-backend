@@ -17,7 +17,8 @@ app.use(cors());
 import userRoutes from './routes/userRoutes.js';
 
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URL, {}).then(() => console.log('MongoDB connected'))
+mongoose.connect(process.env.MONGO_URL, {})
+  .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
 
 // Routes

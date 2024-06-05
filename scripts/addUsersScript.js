@@ -4,7 +4,7 @@ import userModel from "../models/userModel.js";
 // Connect to your MongoDB database
 mongoose
   .connect(
-    "mongodb+srv://admin:admin@mycluster.esu35ar.mongodb.net/SMP-review-portal-trail?retryWrites=true&w=majority&appName=MyCluster",
+    "mongodb+srv://admin:admin@mycluster.esu35ar.mongodb.net/SMP-review-portal?retryWrites=true&w=majority&appName=MyCluster",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -18,9 +18,10 @@ const registerUsers = async () => {
   try {
     const users = [];
 
-    for (let i = 1; i <= 60; i++) {
+    for (let i = 61; i <= 61; i++) {
       const user = new userModel({
-        index: i+306,
+        // index: i + 306,
+        index: i + 306,
         fullname: `name${i}`,
         username: `user${i}`,
         password: `user${i}`,

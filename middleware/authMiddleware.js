@@ -15,12 +15,14 @@ export const auth = (req, res, next) => {
     } catch (error) {
       console.log(error)
       return res.status(400).send('Invalid token');
-    }
+  }
+  
 };
 
 //admin acceess
 export const isAdmin = async (req, res, next) => {
   try {
+    console.log(req);
     const user = await User.findById(req.user.id);
     console.log(user.role);
     if (user.role !== true) {

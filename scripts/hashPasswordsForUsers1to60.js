@@ -5,7 +5,7 @@ import userModel from "../models/userModel.js";
 // Connect to your MongoDB database
 mongoose
   .connect(
-    "mongodb+srv://admin:admin@mycluster.esu35ar.mongodb.net/SMP-review-portal-trail?retryWrites=true&w=majority&appName=MyCluster",
+    "mongodb+srv://admin:admin@mycluster.esu35ar.mongodb.net/SMP-review-portal?retryWrites=true&w=majority&appName=MyCluster",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -18,7 +18,7 @@ mongoose
 const hashPasswords = async () => {
   try {
     // Fetch users with indexes from 1 to 60
-    const users = await userModel.find({ index: { $gte: 307, $lte: 366 } });
+    const users = await userModel.find({ index: { $gte: 307, $lte: 367 } });
 
     for (const user of users) {
       const hashedPassword = await bcrypt.hash(user.password, 10);

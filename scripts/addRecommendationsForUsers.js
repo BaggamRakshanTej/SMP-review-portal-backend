@@ -4,7 +4,7 @@ import userModel from "../models/userModel.js";
 // Connect to your MongoDB database
 mongoose
   .connect(
-    "mongodb+srv://admin:admin@mycluster.esu35ar.mongodb.net/SMP-review-portal-trail?retryWrites=true&w=majority&appName=MyCluster",
+    "mongodb+srv://admin:admin@mycluster.esu35ar.mongodb.net/SMP-review-portal?retryWrites=true&w=majority&appName=MyCluster",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -17,7 +17,7 @@ mongoose
 const updateRecommendations = async () => {
   try {
     // Fetch users with indexes from 307 to 366
-    const users = await userModel.find({ index: { $gte: 307, $lte: 366 } });
+    const users = await userModel.find({ index: { $gte: 307, $lte: 367 } });
     const userIds = users.map((user) => user._id);
 
     for (const user of users) {

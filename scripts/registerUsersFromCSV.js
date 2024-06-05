@@ -6,10 +6,13 @@ import mongoose from 'mongoose';
 import User from '../models/userModel.js'; // Adjust the path to your User model
 
 // Connect to your MongoDB
-mongoose.connect(process.env.MONGO_URL, {
+mongoose.connect(
+  "mongodb+srv://admin:admin@mycluster.esu35ar.mongodb.net/SMP-review-portal?retryWrites=true&w=majority&appName=MyCluster",
+  {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-});
+  }
+);
 
 const registerUser = async (user) => {
     try {
@@ -34,7 +37,7 @@ const registerUser = async (user) => {
 
 const importUsersFromCSV = () => {
     const users = [];
-    fs.createReadStream("D://Projects/ISMP_applicants_data_final(24-25).csv")
+    fs.createReadStream("D://Projects/password.csv")
         .pipe(csv())
         .on('data', (row) => {
             users.push(row);

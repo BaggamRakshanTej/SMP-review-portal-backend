@@ -12,6 +12,7 @@ export const registerController = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await User.findOne({ username });
         const userCount = await User.countDocuments({});
+        console.log(userCount);
         if (user) {
             return res.status(400).send({
                 success: false,
@@ -20,6 +21,7 @@ export const registerController = async (req, res) => {
         } else {
             const newUser = new User({
                 index: userCount + 1,
+                // index,
                 fullname,
                 username,
                 password: hashedPassword,
@@ -31,6 +33,7 @@ export const registerController = async (req, res) => {
                 success: true,
                 message: "User registered successfully",
                 details: {
+                    index: newUser.index,
                     fullname: newUser.fullname,
                     username: newUser.username,
                     password: newUser.password,
@@ -140,36 +143,64 @@ export const getSingleUserController = async (req, res) => {
 
 
 // get all users
+// export const getAllUsersController = async (req, res) => {
+//   try {
+//     const users = await User.find({}).select("fullname");
+//     if (!users || users.length === 0) {
+//       return res.status(404).send({
+//         success: false,
+//         message: "Users not found",
+//       });
+//     }
+
+//     const userNames = users.map((user) => ({
+//       id: user._id, // Include id for React key
+//       fullName: user.fullname, // Use 'fullName' to match frontend expectation
+//     }));
+
+//     return res.status(200).send({
+//       success: true,
+//       users: userNames,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).send({
+//       success: false,
+//       message: "Failed to fetch the users",
+//       error,
+//     });
+//   }
+// };
 export const getAllUsersController = async (req, res) => {
-    try {
-        const users = await User.find({}).populate("fullname");
-        console.log(users);
-        if (!users) {
-            return res.status(404).send({
-                success: false,
-                message: "Users not found"
-            })
-        }
-        console.log(users);
-
-        const userNames = users.map(user => ({
-            id: user._id, // Include id for React key
-            fullname: `${user.fullname}`
-        }));
-
-        return res.status(200).send({
-            success: true,
-            users: userNames
-        })
-    } catch (error) {
-        console.log(error);
-        return res.status(500).send({
-            success: false,
-            message: "Failed to fetch the users",
-            "error": error
-        })
+  try {
+    const users = await User.find({}).select("fullname username");
+    if (!users || users.length === 0) {
+      return res.status(404).send({
+        success: false,
+        message: "Users not found",
+      });
     }
-}
+
+    const userNames = users.map((user) => ({
+      id: user._id,
+      fullname: user.fullname,
+      username: user.username,
+    }));
+
+    return res.status(200).send({
+      success: true,
+      users: userNames,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      success: false,
+      message: "Failed to fetch the users",
+      error,
+    });
+  }
+};
+
 
 // get a set of users for each id
 export const getRecommendedUsersController = async (req, res) => {
@@ -210,7 +241,6 @@ export const getRecommendedUsersController = async (req, res) => {
         });
     }
 }
-
 
 // create a review
 export const createReviewController = async (req, res) => {
@@ -403,4 +433,40 @@ export const addAdditionalReviewController = async (req, res) => {
     });
   }
 };
+
+export const getUsersWithCompletedReviewsController = async (req, res) => {
+  try {
+    // Find users who have completed the review process
+    const users = await User.find({ isReviewComplete: true }).select('fullname reviews');
+    //   console.log(users);
+
+    if (!users || users.length === 0) {
+      return res.status(404).send({
+        success: false,
+        message: "No users found",
+      });
+    }
+
+    // Format the user details for response
+    const userDetails = users.map((user) => ({
+      fullname: user.fullname,
+      reviewsGiven: user.reviews.length,
+    //   filledAt: user.reviewCompletedAt, // Assuming you have a field to store completion time
+    }));
+    console.log(userDetails);
+
+    return res.status(200).send({
+      success: true,
+      users: userDetails,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      success: false,
+      message: "Failed to fetch the users",
+      error,
+    });
+  }
+};
+
 

@@ -8,7 +8,7 @@ const jsonFilePath = "D://Projects/recommendations.json";
 
 const updateRecommendations = async () => {
   await mongoose.connect(
-    "mongodb+srv://admin:admin@mycluster.esu35ar.mongodb.net/SMP-review-portal-trail?retryWrites=true&w=majority&appName=MyCluster",
+    "mongodb+srv://admin:admin@mycluster.esu35ar.mongodb.net/SMP-review-portal?retryWrites=true&w=majority&appName=MyCluster",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -19,18 +19,18 @@ const updateRecommendations = async () => {
     // Read the JSON file
     const recommendationsData = JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'));
 
-    for (const [username, recommendations] of Object.entries(recommendationsData)) {
+    for (const [fullname, recommendations] of Object.entries(recommendationsData)) {
       // Convert usernames to user IDs
-      const user = await User.findOne({ username });
+      const user = await User.findOne({ fullname });
       if (user) {
-        const recommendationIds = await User.find({ username: { $in: recommendations } }).select('_id');
+        const recommendationIds = await User.find({ fullname: { $in: recommendations } }).select('_id');
         const recommendationIdsArray = recommendationIds.map(user => user._id);
         
         // Update the user with the recommendations array
-        await User.updateOne({ username }, { recommendations: recommendationIdsArray });
-        console.log(`Recommendations for user ${username}: ${recommendationIdsArray}`);
+        await User.updateOne({ fullname }, { recommendations: recommendationIdsArray });
+        console.log(`Recommendations for user ${fullname}: ${recommendationIdsArray}`);
       } else {
-        console.log(`User ${username} not found in the database.`);
+        console.log(`User ${fullname} not found in the database.`);
       }
     }
 
