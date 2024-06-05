@@ -77,7 +77,8 @@ import {
   getRecommendedUsersController,
   addAdditionalReviewController,
   declareCompletionController,
-  getUsersWithCompletedReviewsController
+  getUsersWithCompletedReviewsController,
+  getAdditionalReviewsController
 } from "../controllers/userController.js";
 
 import {
@@ -154,12 +155,18 @@ router.post("/declareCompletion/:userId", auth, declareCompletionController);
 
 // admin Routes ---------------------------------
 
-// router.get("/admin/completed-reviews", auth, isAdmin, getUsersWithCompletedReviewsController);
 router.get(
   "/admin/completed-reviews",
   auth,
   isAdmin,
   getUsersWithCompletedReviewsController
 );
+
+router.get(
+  '/additional-reviews',
+  auth,
+  isAdmin, 
+  getAdditionalReviewsController
+)
 
 export default router;

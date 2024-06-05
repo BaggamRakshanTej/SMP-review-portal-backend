@@ -469,4 +469,13 @@ export const getUsersWithCompletedReviewsController = async (req, res) => {
   }
 };
 
-
+export const getAdditionalReviewsController = async (req, res) => {
+    try {
+      const users = await User
+        .find({ additionalReviews: { $ne: "" } })
+        .select("fullname additionalReviews");
+      return res.status(200).send({ success: true, data: users });
+    } catch (error) {
+      return res.status(500).send({ success: false, error: error.message });
+    }
+}
